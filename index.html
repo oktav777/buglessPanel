@@ -3,21 +3,27 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Document</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
 		<link rel="stylesheet" href="style.css">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
-		<script>
+		<!--<script>
 			$(document).ready(function() {
-				var panel = document.querySelector('.outer');
-				var panelInner = panel.querySelector('.inner');
+				var panels = document.querySelectorAll('.outer');
+				var content = document.querySelector('.content');
+				var body = document.getElementsByTagName('body')[0];
 
-				panel.addEventListener('touchmove', handleTouchMoveVertical, false);
-				panel.addEventListener('touchstart', handleTouchStart, false);
+				content.addEventListener('touchstart', handleTouchStart, false);
+				content.addEventListener('touchmove', handleTouchMoveContent(panels), false);
 
-				function stopBottom(evt) {
-					if(panel.scrollTop + panel.offsetHeight >= panelInner.offsetHeight) {
-						console.log('finished');
+				for(var i = 0, l = panels.length; i < l; i++) {
+					var p = panels[i];
+					p.addEventListener('touchstart', handleTouchStart, false);
+					p.addEventListener('touchmove', handleTouchMovePanel(p), false);
+				}
+
+				function stopBottom(evt, panel) {
+					if(panel.scrollTop + panel.offsetHeight >= panel.querySelector('.inner').offsetHeight) {
 						evt.preventDefault();
 						evt.stopPropagation();
 						evt.returnValue = false;
@@ -26,9 +32,8 @@
 					}
 				}
 
-				function stopTop(evt) {
+				function stopTop(evt, panel) {
 					if(panel.scrollTop <= 0) {
-						console.log('finished');
 						evt.preventDefault();
 						evt.stopPropagation();
 						evt.returnValue = false;
@@ -36,9 +41,6 @@
 						return false;
 					}
 				}
-
-				document.addEventListener('touchstart', handleTouchStart, false);
-				document.addEventListener('touchmove', handleTouchMoveOrizontal, false);
 
 				var xDown = null;
 				var yDown = null;
@@ -48,76 +50,131 @@
 					yDown = evt.touches[0].clientY;
 				};
 
-				function handleTouchMoveOrizontal(evt) {
-					if ( ! xDown || ! yDown ) {
-						return;
-					}
+				function hasClass(el, className) {
+					if (el.classList)
+						return el.classList.contains(className)
+						else
+							return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+							}
 
-					var xUp = evt.touches[0].clientX;
-					var yUp = evt.touches[0].clientY;
+				function addClass(el, className) {
+					if (el.classList)
+						el.classList.add(className)
+						else if (!hasClass(el, className)) el.className += " " + className
+							}
 
-					var xDiff = xDown - xUp;
-					var yDiff = yDown - yUp;
-
-					/*most significant*/
-					if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
-						if ( xDiff > 0 ) {
-							/* left swipe */
-							console.info('left');
-							$('body, .outer').removeClass('open');
-						} else {
-							/* right swipe */
-							console.info('right');
-							$('body, .outer').addClass('open');
+				function removeClass(el, className) {
+					if (el.classList)
+						el.classList.remove(className)
+						else if (hasClass(el, className)) {
+							var reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
+							el.className=el.className.replace(reg, ' ')
 						}
-					}
+				}
 
-					/* reset values */
-					xDown = null;
-					yDown = null;
+				function handleTouchMoveContent(panels) {
+					return function(evt) {
+						if ( ! xDown || ! yDown ) {
+							return;
+						}
+
+						var xUp = evt.touches[0].clientX;
+						var yUp = evt.touches[0].clientY;
+
+						var xDiff = xDown - xUp;
+						var yDiff = yDown - yUp;
+
+						for(var i = 0, l = panels.length; i < l; i++) {
+							var p = panels[i];
+							if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
+								if ( xDiff > 0 ) {
+									/* left swipe */
+									console.info('left');
+									if(p.getAttribute('pos') === 'right') {
+										addClass(body, 'open');
+										addClass(p, 'open');
+									}
+								} else {
+									/* right swipe */
+									console.info('right');
+									if(p.getAttribute('pos') === 'left') {
+										addClass(body, 'open');
+										addClass(p, 'open');
+									}
+								}
+							}
+
+						}
+
+						/* reset values */
+						xDown = null;
+						yDown = null;
+					}
 				};
 
-				function handleTouchMoveVertical(evt) {
-					if ( ! xDown || ! yDown ) {
-						return;
-					}
-
-					var xUp = evt.touches[0].clientX;
-					var yUp = evt.touches[0].clientY;
-
-					var xDiff = xDown - xUp;
-					var yDiff = yDown - yUp;
-
-
-					if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
-						if ( xDiff > 0 ) {
-							/* left swipe */
-							$('body, .outer').removeClass('open');
-						} else {
-							/* right swipe */
-							$('body, .outer').addClass('open');
+				function handleTouchMovePanel(panel) {
+					return function(evt) {
+						if ( ! xDown || ! yDown ) {
+							return;
 						}
-					} else {
-						if ( yDiff > 0 ) {
-							/* up swipe */
-							stopBottom(evt);
-						} else {
-							/* down swipe */
-							stopTop(evt);
-						}
-					}
 
-					/* reset values */
-					xDown = null;
-					yDown = null;
+						var xUp = evt.touches[0].clientX;
+						var yUp = evt.touches[0].clientY;
+
+						var xDiff = xDown - xUp;
+						var yDiff = yDown - yUp;
+
+						/*most significant*/
+						if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
+							if ( xDiff > 0 ) {
+								/* left swipe */
+								if(panel.getAttribute('pos') === 'left') {
+									removeClass(body, 'open');
+									removeClass(panel, 'open');
+								}
+							} else {
+								/* right swipe */
+								if(panel.getAttribute('pos') === 'right') {
+									removeClass(body, 'open');
+									removeClass(panel, 'open');
+								}
+							}
+						} else {
+							if ( yDiff > 0 ) {
+								/* up swipe */
+								stopBottom(evt, panel);
+							} else {
+								/* down swipe */
+								stopTop(evt, panel);
+							}
+						}
+
+						/* reset values */
+						xDown = null;
+						yDown = null;
+					}
 				};
 			});
 
-		</script>
+</script>-->
 
 	</head>
 	<body>
-		<div class="outer">
+		<div class="outer" pos="left">
+			<div class="inner">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+				<img src="http://placehold.it/200x200" alt="">
+			</div>
+		</div>
+		<div class="outer right" pos="right">
 			<div class="inner">
 				<img src="http://placehold.it/200x200" alt="">
 				<img src="http://placehold.it/200x200" alt="">

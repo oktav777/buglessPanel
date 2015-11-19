@@ -1,5 +1,4 @@
-body {
-  position: relative;
+/*body {
   margin: 0;
   text-align: center;
 }
@@ -30,6 +29,14 @@ body.open {
   transform: translateX(0);
 }
 
+.outer.right {
+  transform: translateX(100%);
+}
+
+.outer.right.open {
+  transform: translateX(0);
+}
+
 
 
 .outer:before {
@@ -46,4 +53,4 @@ body.open {
   width: 100%;
   clear: both;
   display: block;
-}
+}*/
