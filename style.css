@@ -1,0 +1,49 @@
+body {
+  position: relative;
+  margin: 0;
+  text-align: center;
+}
+
+body.open {
+  overflow: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  -moz-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+.outer {
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+  -moz-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+  position: fixed;
+  transition: transform .3s ease;
+  transform: translateX(-100%);
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.outer.open {
+  transform: translateX(0);
+}
+
+
+
+.outer:before {
+  content:"";
+  width: 0.1px;
+  float: left;
+  height: calc(100% + 0.1px);
+  margin-left: -0.1px;
+  display: block;
+
+}
+.outer:after{
+  content:"";
+  width: 100%;
+  clear: both;
+  display: block;
+}
