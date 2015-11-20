@@ -1,7 +1,7 @@
 var panels = document.querySelectorAll('.m-panel');
 var content = document.querySelector('.container');
 var body = document.getElementsByTagName('body')[0];
-var swipeDeltaX = window.innerWidth / 3;
+var swipeDeltaX = screen.width / 4;
 
 content.addEventListener('touchstart', handleTouchStart, false);
 content.addEventListener('touchmove', handleTouchMoveContent(panels), false);
