@@ -1,14 +1,16 @@
 var panels = document.querySelectorAll('.m-panel');
 var content = document.querySelector('.container');
 var body = document.getElementsByTagName('body')[0];
-var swipeDeltaX = screen.width / 4;
+var swipeDeltaX = screen.width / 3;
+//var swipeDeltaX = screen.width;
 
-content.addEventListener('touchstart', handleTouchStart, false);
+content.addEventListener('touchstart', touchStart, false);
 content.addEventListener('touchmove', handleTouchMoveContent(panels), false);
+content.addEventListener('touchend', touchEnd, false);
 
 for(var i = 0, l = panels.length; i < l; i++) {
   var p = panels[i];
-  p.addEventListener('touchstart', handleTouchStart, false);
+  p.addEventListener('touchstart', touchStart, false);
   p.addEventListener('touchmove', handleTouchMovePanel(p), false);
 }
 
@@ -32,12 +34,18 @@ function stopTop(evt, panel) {
   }
 }
 
-var xDown = null;
-var yDown = null;
+var xDown, yDown, xEnd, yEnd = null;
 
-function handleTouchStart(evt) {
+function touchStart(evt) {
+  console.log('started', evt.touches[0].clientX, evt.touches[0].clientY);
   xDown = evt.touches[0].clientX;
   yDown = evt.touches[0].clientY;
+}
+
+function touchEnd(evt) {
+  console.log('ended', evt.changedTouches[0].clientX, evt.changedTouches[0].clientY);
+  xEnd = evt.changedTouches[0].clientX || 0;
+  yEnd = evt.changedTouches[0].clientY || 0;
 }
 
 function hasClass(el, className) {
@@ -74,32 +82,74 @@ function handleTouchMoveContent(panels) {
     var xDiff = xDown - xUp;
     var yDiff = yDown - yUp;
 
-    if(Math.abs(xDiff) < swipeDeltaX)
-      return;
+    // x axis stop diff
+    var xsd = xUp - xEnd || null;
+    //y axis stop diff
+    var ysd = yUp - yEnd || null;
 
     for(var i = 0, l = panels.length; i < l; i++) {
       var p = panels[i];
+
+      function dragRight() {
+        return 100 - (((screen.width - xUp) * 100) / screen.width);
+      }
+
+      function dragLeft() {
+        return 100 - ((xUp * 100) / screen.width);
+      }
 
       if(Math.abs(xDiff) > Math.abs(yDiff)) {
         if(xDiff > 0) {
           /* left swipe */
           if(p.getAttribute('pos') === 'right') {
-            addClass(body, 'open');
-            addClass(p, 'open');
+            p.style.transform = 'translate(' + dragRight() + '%)';
+            if(xsd === null) {
+              if(Math.abs(xDiff) > swipeDeltaX) {
+                addClass(body, 'open');
+                addClass(p, 'open');
+                p.removeAttribute('style');
+                xDown = null;
+                yDown = null;
+              }
+            } else if(Math.abs(xsd) > swipeDeltaX) {
+              addClass(body, 'open');
+              addClass(p, 'open');
+              p.removeAttribute('style');
+              xDown = null;
+              yDown = null;
+            } else {
+              return;
+            }
           }
         } else {
           /* right swipe */
           if(p.getAttribute('pos') === 'left') {
-            addClass(body, 'open');
-            addClass(p, 'open');
+            p.style.transform = 'translate(-' + dragLeft() + '%)';
+            if(xsd === null) {
+              if(Math.abs(xDiff) > swipeDeltaX) {
+                addClass(body, 'open');
+                addClass(p, 'open');
+                p.removeAttribute('style');
+                xDown = null;
+                yDown = null;
+              }
+            } else if(Math.abs(xsd) > swipeDeltaX) {
+              addClass(body, 'open');
+              addClass(p, 'open');
+              p.removeAttribute('style');
+              xDown = null;
+              yDown = null;
+            } else {
+              return;
+            }
           }
         }
       }
     }
 
     /* reset values */
-    xDown = null;
-    yDown = null;
+    /*xDown = null;
+    yDown = null;*/
   }
 }
 
@@ -114,11 +164,15 @@ function handleTouchMovePanel(panel) {
     var xDiff = xDown - xUp;
     var yDiff = yDown - yUp;
 
-    if(Math.abs(xDiff) < swipeDeltaX)
+    /*if(Math.abs(xDiff) > swipeDeltaX) {
+      xDown = null;
+      yDown = null;
       return;
+    }*/
 
     /*most significant*/
     if(Math.abs(xDiff) > Math.abs(yDiff)) {
+      //console.log('swiped');
       if(xDiff > 0) {
         /* left swipe */
         if(panel.getAttribute('pos') === 'left') {

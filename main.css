@@ -14,7 +14,7 @@ body.open {
   -moz-overflow-scrolling: touch;
   overflow-scrolling: touch;
   position: fixed;
-  transition: transform 0.3s ease-in-out;
+  will-change: transform;
   left: 0;
   top: 0;
   height: 100%;
@@ -28,5 +28,6 @@ body.open {
   transform: translateX(100%);
 }
 .m-panel.open {
-  transform: translateX(0) !important;
+  transform: translateX(0);
+  transition: transform 0.1s ease-in-out;
 }
