@@ -1,0 +1,27 @@
+body
+  margin 0
+  text-align center
+  &.open
+    overflow hidden !important
+    -webkit-overflow-scrolling touch
+    -moz-overflow-scrolling touch
+    overflow-scrolling touch
+
+.m-panel
+  &[pos='left']
+    transform translateX(-100%)
+  &[pos='right']
+    transform translateX(100%)
+  &.open
+    transform translateX(0) !important
+  overflow scroll
+  -webkit-overflow-scrolling touch
+  -moz-overflow-scrolling touch
+  overflow-scrolling touch
+  position fixed
+  transition transform .3s ease-in-out
+  left 0
+  top 0
+  height 100%
+  width 100%
+  background-color rgba(0, 0, 0, .4)

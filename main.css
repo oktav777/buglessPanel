@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+  text-align: center;
+}
+body.open {
+  overflow: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  -moz-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+.m-panel {
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+  -moz-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+  position: fixed;
+  transition: transform 0.3s ease-in-out;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,0.4);
+}
+.m-panel[pos='left'] {
+  transform: translateX(-100%);
+}
+.m-panel[pos='right'] {
+  transform: translateX(100%);
+}
+.m-panel.open {
+  transform: translateX(0) !important;
+}
