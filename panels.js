@@ -1,51 +1,6 @@
-var panels = document.querySelectorAll('.m-panel');
-var content = document.querySelector('.container');
-var body = document.getElementsByTagName('body')[0];
-var swipeDeltaX = screen.width / 3;
-//var swipeDeltaX = screen.width;
-
-content.addEventListener('touchstart', touchStart, false);
-content.addEventListener('touchmove', handleTouchMoveContent(panels), false);
-content.addEventListener('touchend', touchEnd, false);
-
-for(var i = 0, l = panels.length; i < l; i++) {
-  var p = panels[i];
-  p.addEventListener('touchstart', touchStart, false);
-  p.addEventListener('touchmove', handleTouchMovePanel(p), false);
-}
-
-function stopBottom(evt, panel) {
-  if(panel.scrollTop + panel.offsetHeight >= panel.querySelector('.inner').offsetHeight) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    evt.returnValue = false;
-    evt.stopImmediatePropagation();
-    return false;
-  }
-}
-
-function stopTop(evt, panel) {
-  if(panel.scrollTop <= 0) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    evt.returnValue = false;
-    evt.stopImmediatePropagation();
-    return false;
-  }
-}
-
-var xDown, yDown, xEnd, yEnd = null;
-
-function touchStart(evt) {
-  console.log('started', evt.touches[0].clientX, evt.touches[0].clientY);
-  xDown = evt.touches[0].clientX;
-  yDown = evt.touches[0].clientY;
-}
-
-function touchEnd(evt) {
-  console.log('ended', evt.changedTouches[0].clientX, evt.changedTouches[0].clientY);
-  xEnd = evt.changedTouches[0].clientX || 0;
-  yEnd = evt.changedTouches[0].clientY || 0;
+// Help functions
+function calculatePercentage(value) {
+  return value * 100 / screen.width;
 }
 
 function hasClass(el, className) {
@@ -71,133 +26,184 @@ function removeClass(el, className) {
   }
 }
 
-function handleTouchMoveContent(panels) {
-  return function(evt) {
-    if (!xDown || !yDown)
-      return;
 
-    var xUp = evt.touches[0].clientX;
-    var yUp = evt.touches[0].clientY;
+// LSD - Listen swipe direction
+function LSD(element) {
+  this.element = element;
+  this.initListeners();
+}
 
-    var xDiff = xDown - xUp;
-    var yDiff = yDown - yUp;
+LSD.prototype.initListeners = function () {
+  var startX = 0,
+      startY = 0,
+      self = this,
+      movementDirection = false,
+      eventParams = {
+        direction: null,
+        touches: null,
+        deltaX: null,
+        deltaY: null
+      };
 
-    // x axis stop diff
-    var xsd = xUp - xEnd || null;
-    //y axis stop diff
-    var ysd = yUp - yEnd || null;
+  self.element.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, false);
 
-    for(var i = 0, l = panels.length; i < l; i++) {
-      var p = panels[i];
+  self.element.addEventListener('touchmove', function(e) {
 
-      function dragRight() {
-        return 100 - (((screen.width - xUp) * 100) / screen.width);
-      }
+    var deltaX = e.touches[0].clientX - startX,
+        deltaY = e.touches[0].clientY - startY;
 
-      function dragLeft() {
-        return 100 - ((xUp * 100) / screen.width);
-      }
+    if(movementDirection === false) {
+      var distance = 10,
+          movementX = Math.abs(deltaX) >= distance,
+          movementY = Math.abs(deltaY) >= distance;
 
-      if(Math.abs(xDiff) > Math.abs(yDiff)) {
-        if(xDiff > 0) {
-          /* left swipe */
-          if(p.getAttribute('pos') === 'right') {
-            p.style.transform = 'translate(' + dragRight() + '%)';
-            if(xsd === null) {
-              if(Math.abs(xDiff) > swipeDeltaX) {
-                addClass(body, 'open');
-                addClass(p, 'open');
-                p.removeAttribute('style');
-                xDown = null;
-                yDown = null;
-              }
-            } else if(Math.abs(xsd) > swipeDeltaX) {
-              addClass(body, 'open');
-              addClass(p, 'open');
-              p.removeAttribute('style');
-              xDown = null;
-              yDown = null;
-            } else {
-              return;
-            }
-          }
-        } else {
-          /* right swipe */
-          if(p.getAttribute('pos') === 'left') {
-            p.style.transform = 'translate(-' + dragLeft() + '%)';
-            if(xsd === null) {
-              if(Math.abs(xDiff) > swipeDeltaX) {
-                addClass(body, 'open');
-                addClass(p, 'open');
-                p.removeAttribute('style');
-                xDown = null;
-                yDown = null;
-              }
-            } else if(Math.abs(xsd) > swipeDeltaX) {
-              addClass(body, 'open');
-              addClass(p, 'open');
-              p.removeAttribute('style');
-              xDown = null;
-              yDown = null;
-            } else {
-              return;
-            }
-          }
-        }
+      if(movementX) {
+        console.log('moveX');
+        movementDirection = deltaX > 0 ? 'right' : 'left';
+      } else if(movementY) {
+        console.log('moveY');
+        movementDirection = deltaY > 0 ? 'bottom' : 'top';
       }
     }
 
-    /* reset values */
-    /*xDown = null;
-    yDown = null;*/
-  }
-}
-
-function handleTouchMovePanel(panel) {
-  return function(evt) {
-    if (!xDown || !yDown)
-      return;
-
-    var xUp = evt.touches[0].clientX;
-    var yUp = evt.touches[0].clientY;
-
-    var xDiff = xDown - xUp;
-    var yDiff = yDown - yUp;
-
-    /*if(Math.abs(xDiff) > swipeDeltaX) {
-      xDown = null;
-      yDown = null;
-      return;
-    }*/
-
-    /*most significant*/
-    if(Math.abs(xDiff) > Math.abs(yDiff)) {
-      //console.log('swiped');
-      if(xDiff > 0) {
-        /* left swipe */
-        if(panel.getAttribute('pos') === 'left') {
-          removeClass(body, 'open');
-          removeClass(panel, 'open');
-        }
-      } else {
-        /* right swipe */
-        if(panel.getAttribute('pos') === 'right') {
-          removeClass(body, 'open');
-          removeClass(panel, 'open');
+    if(movementDirection) {
+      eventParams = {
+        touches: e.touches,
+        deltaX: deltaX,
+        deltaY: deltaY,
+        direction: movementDirection,
+        preventDefault: function() {
+          e.preventDefault();
         }
       }
+      self.triggerEvent('move' + movementDirection, eventParams);
+    }
+  }, false);
+
+  self.element.addEventListener('touchend', function(e) {
+    self.triggerEvent('moveend' + movementDirection, eventParams);
+    movementDirection = false;
+  }, false);
+
+  self.element.addEventListener('touchcancel', function(e) {
+    self.triggerEvent('movecancel' + movementDirection, eventParams);
+    movementDirection = false;
+  }, false);
+};
+
+LSD.prototype.triggerEvent = function (eventName, eventParams) {
+  var customEvent = document.createEvent('Event');
+  customEvent.initEvent(eventName, true, true);
+  for (var param in eventParams) {
+    customEvent[param] = eventParams[param];
+  }
+  this.element.dispatchEvent(customEvent);
+};
+
+LSD.prototype.on = function (event, callback) {
+  this.element.addEventListener(event, callback, false);
+};
+
+// Panel class
+function Panel(selector, params) {
+  this.element = document.querySelector(selector);
+  this.position = params.position;
+  this.initListeners();
+}
+
+Panel.prototype.translateX = function (value) {
+  value = this.position == 'left' ? (-100 + value) : value;
+  this.element.style.transform = 'translateX(' + value + '%)';
+};
+
+Panel.prototype.close = function () {
+  addClass(this.element, 'animate');
+  this.translateX(0);
+};
+
+Panel.prototype.open = function () {
+  addClass(this.element, 'animate');
+  this.translateX(100);
+};
+
+Panel.prototype.initListeners = function () {
+  var self = this;
+
+  // content listeners
+  Panel.content.on('touchstart', function(e) {
+    removeClass(self.element, 'animate');
+  });
+
+  Panel.content.on(self.position == 'left' ? 'moveright' : 'moveleft', function(e) {
+    self.translateX(calculatePercentage(e.touches[0].clientX));
+  });
+
+  Panel.content.on(self.position == 'left' ? 'moveendright' : 'moveendleft', function(e) {
+    if(calculatePercentage(e.touches[0].clientX) < (self.position == 'left' ? 40 : 60)) {
+      self.close();
     } else {
-      if(yDiff > 0) {
-        /* up swipe */
-        stopBottom(evt, panel);
-      } else {
-        /* down swipe */
-        stopTop(evt, panel);
-      }
+      self.open();
+    }
+  });
+
+  // panel listeners
+  self.lsd = new LSD(self.element);
+  var sx = null;
+  self.lsd.on('touchstart', function(e) {
+    removeClass(self.element, 'animate');
+    sx = self.position == 'left' ? screen.width - e.touches[0].clientX : e.touches[0].clientX;
+  });
+
+  self.lsd.on(self.position == 'left' ? 'moveleft' : 'moveright', function(e) {
+    var s = self.position == 'left' ? 1 : -1;
+    var v = calculatePercentage(e.touches[0].clientX) + (calculatePercentage(sx) * s);
+    self.translateX(v);
+  });
+
+  self.lsd.on(self.position == 'left' ? 'moveendleft' : 'moveendright', function(e) {
+    if(calculatePercentage(e.touches[0].clientX) < (self.position == 'left' ? 60 : 40)) {
+      self.close();
+    } else {
+      self.open();
+    }
+  });
+
+  self.lsd.on('movebottom', function(e) {
+    if(self.element.scrollTop <= 0) {
+      e.preventDefault();
     }
 
-    /* reset values */
-    xDown = null;
-    yDown = null;
+  });
+
+  self.lsd.on('movetop', function(e) {
+    if(self.element.scrollTop + self.element.offsetHeight >= self.element.querySelector('.inner').offsetHeight) {
+      e.preventDefault();
+    }
+  });
+
+
+};
+
+
+Panel.setContent = function(selector) {
+  if(Panel.content === undefined) {
+    Panel.content = new LSD(document.querySelector(selector));
   }
-}
+  return Panel.content;
+};
+
+
+
+Panel.setContent('.container');
+
+
+var p1 = new Panel('#left-panel', {
+  position: 'left'
+});
+
+var p2 = new Panel('#right-panel', {
+  position: 'right'
+});

@@ -8,6 +8,11 @@ body.open {
   -moz-overflow-scrolling: touch;
   overflow-scrolling: touch;
 }
+
+.m-panel.animate {
+  transition: all 0.3s;
+}
+
 .m-panel {
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
