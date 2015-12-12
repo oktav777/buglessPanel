@@ -1,3 +1,4 @@
+// out:../css/main.css
 body
     margin 0
     text-align center
@@ -9,9 +10,14 @@ body
 
 .m-panel
     &.left
-        transform translateX(-100%)
+        left -100%
     &.right
-        transform translateX(100%)
+        left 100%
+    &.bottom
+        top 100%
+    &.top
+        top -100%
+    display none
     overflow scroll
     -webkit-overflow-scrolling touch
     -moz-overflow-scrolling touch
@@ -23,6 +29,7 @@ body
     height 100%
     width 100%
     background-color rgba(0, 0, 0, 0.54)
+    opacity .5
 
 .animate
     transition all .2s linear

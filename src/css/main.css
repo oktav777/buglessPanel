@@ -9,6 +9,7 @@ body.open {
   overflow-scrolling: touch;
 }
 .m-panel {
+  display: none;
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
   -moz-overflow-scrolling: touch;
@@ -20,12 +21,19 @@ body.open {
   height: 100%;
   width: 100%;
   background-color: rgba(0,0,0,0.54);
+  opacity: 0.5;
 }
 .m-panel.left {
-  transform: translateX(-100%);
+  left: -100%;
 }
 .m-panel.right {
-  transform: translateX(100%);
+  left: 100%;
+}
+.m-panel.bottom {
+  top: 100%;
+}
+.m-panel.top {
+  top: -100%;
 }
 .animate {
   transition: all 0.2s linear;

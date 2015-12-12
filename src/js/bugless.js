@@ -46,7 +46,8 @@ var BuglessPanel = {
         var self = this;
         self.contentCMD.on('moveright', function (e) {
             if(e.direction !== false) {
-                self.leftPanel.translateX(Help.calculatePercentage(e.touches[0].clientX));
+                self.leftPanel.show();
+                self.leftPanel.moveX(Help.calculatePercentageX(e.touches[0].clientX));
             }
         });
 
@@ -62,7 +63,8 @@ var BuglessPanel = {
         var self = this;
         self.contentCMD.on('moveleft', function (e) {
             if(e.direction !== false) {
-                self.rightPanel.translateX(Help.calculatePercentage(e.touches[0].clientX));
+                self.rightPanel.show();
+                self.rightPanel.moveX(Help.calculatePercentageX(e.touches[0].clientX));
             }
         });
 
@@ -95,6 +97,7 @@ function Panel(selector, params) {
 
     BuglessPanel.panels.push(self);
     self.element = document.querySelector(selector);
+    self.innerElement = self.element.querySelector('.inner');
     self.x = null;
     self.y = null;
 
@@ -110,48 +113,102 @@ function Panel(selector, params) {
         self.elementCMD = new CMD(self.element, {
             threshold: BuglessPanel.moveThreshold,
             preventScroll: true,
-            innerElement: self.element.querySelector('.inner')
+            innerElement: self.innerElement
         });
 
         switch(self.position) {
             case Panel.POSITION_LEFT:
                 self.x = -100;
                 self.y = 0;
-                self.listenRightSwipe();
+                self.listenLeftSwipe();
                 break;
             case Panel.POSITION_RIGHT:
                 self.x = 100;
                 self.y = 0;
-                self.listenLeftSwipe();
+                self.listenRightSwipe();
                 break;
             case Panel.POSITION_TOP:
                 self.x = 0;
                 self.y = -100;
-                self.listenBottomSwipe();
+                self.listenTopSwipe();
                 break;
             case Panel.POSITION_BOTTOM:
                 self.x = 0;
                 self.y = 100;
-                self.listenTopSwipe();
+                self.listenBottomSwipe();
                 break;
         }
     }
 
 }
 
-Panel.prototype.listenRightSwipe = function() {
+
+Panel.prototype.listenTopSwipe = function() {
+    var self = this,
+        sy = null;
+
+    self.elementCMD.on('touchstart', function(e) {
+        self.animateOff();
+        sy = screen.height - e.touches[0].clientY;
+    });
+
+    self.elementCMD.on('movetop', function(e) {
+        if(e.direction !== false && (self.element.scrollTop + self.element.offsetHeight) >= self.innerElement.offsetHeight) {
+            var v = Help.calculatePercentageY(e.touches[0].clientY) + Help.calculatePercentageY(sy);
+            self.moveY(v < 100 ? v : 100);
+        }
+    });
+
+    self.elementCMD.on('moveendtop', function(e) {
+        if(self.y < 100 - BuglessPanel.panelThreshold) {
+            self.close();
+        } else {
+            self.open();
+        }
+    });
+}
+
+
+Panel.prototype.listenBottomSwipe = function() {
+    var self = this,
+        sy = null;
+
+    self.elementCMD.on('touchstart', function(e) {
+        self.animateOff();
+        sy = e.touches[0].clientY;
+    });
+
+    self.elementCMD.on('movebottom', function(e) {
+        if(e.direction !== false && self.element.scrollTop <= 0) {
+            var v = Help.calculatePercentageY(e.touches[0].clientY) - Help.calculatePercentageY(sy);
+            self.moveY(v > 0 ? v : 0);
+        }
+    });
+
+    self.elementCMD.on('moveendbottom', function(e) {
+        if(self.y > BuglessPanel.panelThreshold) {
+            self.close();
+        } else {
+            console.log('open');
+            self.open();
+        }
+    });
+}
+
+
+Panel.prototype.listenLeftSwipe = function() {
     var self = this,
         sx = null;
 
     self.elementCMD.on('touchstart', function(e) {
-        Help.removeClass(self.element, 'animate');
+        self.animateOff();
         sx = screen.width - e.touches[0].clientX;
     });
 
     self.elementCMD.on('moveleft', function(e) {
         if(e.direction !== false) {
-            var v = Help.calculatePercentage(e.touches[0].clientX) + Help.calculatePercentage(sx);
-            self.translateX(v < 100 ? v : 100);
+            var v = Help.calculatePercentageX(e.touches[0].clientX) + Help.calculatePercentageX(sx);
+            self.moveX(v < 100 ? v : 100);
         }
     });
 
@@ -164,19 +221,19 @@ Panel.prototype.listenRightSwipe = function() {
     });
 }
 
-Panel.prototype.listenLeftSwipe = function() {
+Panel.prototype.listenRightSwipe = function() {
     var self = this,
         sx = null;
 
     self.elementCMD.on('touchstart', function(e) {
-        Help.removeClass(self.element, 'animate');
+        self.animateOff();
         sx = e.touches[0].clientX;
     });
 
     self.elementCMD.on('moveright', function(e) {
         if(e.direction !== false) {
-            var v = Help.calculatePercentage(e.touches[0].clientX) - Help.calculatePercentage(sx);
-            self.translateX(v > 0 ? v : 0);
+            var v = Help.calculatePercentageX(e.touches[0].clientX) - Help.calculatePercentageX(sx);
+            self.moveX(v > 0 ? v : 0);
         }
     });
 
@@ -193,36 +250,75 @@ Panel.prototype.animateOff = function() {
     Help.removeClass(this.element, 'animate');
 }
 
-Panel.prototype.translateX = function (value) {
+Panel.prototype.show = function() {
+    this.element.style.display = 'block';
+}
+
+Panel.prototype.hide = function() {
+    this.element.style.display = 'none';
+}
+
+Panel.prototype.moveX = function (value) {
     this.x = value;
     value = this.position == Panel.POSITION_LEFT ? (-100 + value) : value;
-    this.element.style.transform = 'translateX(' + value + '%)';
+    this.element.style.left = value + '%';
+}
+
+Panel.prototype.moveY = function (value) {
+    this.y = value;
+    value = this.position == Panel.POSITION_TOP ? (-100 + value) : value;
+    this.element.style.top = value + '%';
 }
 
 Panel.prototype.close = function () {
+    var self = this;
     Help.addClass(this.element, 'animate');
-    var v;
+    switch(this.position) {
+        case Panel.POSITION_LEFT:
+            this.moveX(0);
+            break;
+        case Panel.POSITION_RIGHT:
+            this.moveX(100);
+            break;
+        case Panel.POSITION_TOP:
+            this.moveY(0);
+            break;
+        case Panel.POSITION_BOTTOM:
+            this.moveY(100);
+            break;
+    }
 
-    if(this.position == Panel.POSITION_LEFT) {
-        v = 0;
+    var transitionEvent = Help.transitionEvent();
+    function hidePanel() {
+        self.hide();
+        self.element.removeEventListener(transitionEvent, hidePanel);
     }
-    if(this.position == Panel.POSITION_RIGHT) {
-        v = 100;
+    if(transitionEvent) {
+        self.element.removeEventListener(transitionEvent, hidePanel);
+        self.element.addEventListener(transitionEvent, hidePanel);
     }
-    this.translateX(v);
 }
 
 Panel.prototype.open = function () {
-    Help.addClass(this.element, 'animate');
-    var v;
-
-    if(this.position == Panel.POSITION_LEFT) {
-        v = 100;
-    }
-    if(this.position == Panel.POSITION_RIGHT) {
-        v = 0;
-    }
-    this.translateX(v);
+    var self = this;
+    self.show();
+    setTimeout(function() {
+        Help.addClass(self.element, 'animate');
+        switch(self.position) {
+            case Panel.POSITION_LEFT:
+                self.moveX(100);
+                break;
+            case Panel.POSITION_RIGHT:
+                self.moveX(0);
+                break;
+            case Panel.POSITION_TOP:
+                self.moveY(100);
+                break;
+            case Panel.POSITION_BOTTOM:
+                self.moveY(0);
+                break;
+        }
+    }, 0);
 }
 
 
@@ -235,8 +331,11 @@ Panel.prototype.open = function () {
 *   Help functions
 */
 var Help = {
-    calculatePercentage: function(value) {
+    calculatePercentageX: function(value) {
         return value * 100 / screen.width;
+    },
+    calculatePercentageY: function(value) {
+        return value * 100 / screen.height;
     },
     hasClass: function(el, className) {
         if (el.classList)
@@ -256,6 +355,22 @@ var Help = {
         else if (hasClass(el, className)) {
             var reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
             el.className = el.className.replace(reg, ' ')
+        }
+    },
+    transitionEvent: function() {
+        var t,
+            el = document.createElement('fakeelement'),
+            transitions = {
+                transition: 'transitionend',
+                OTransition: 'oTransitionEnd',
+                MozTransition: 'transitionend',
+                WebkitTransition: 'webkitTransitionEnd'
+            }
+
+        for(t in transitions){
+            if(el.style[t] !== undefined){
+                return transitions[t];
+            }
         }
     }
 }

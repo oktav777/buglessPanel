@@ -48,13 +48,14 @@ CMD.prototype.initListeners = function () {
             }
         }
 
+
         if(stableDirection === false) {
             if(Math.abs(deltaX) > self.threshold) {
                 stableDirection = deltaX > 0 ? 'right' : 'left';
                 moveOrientation = 'horizontal';
             }
             if(Math.abs(deltaY) > self.threshold) {
-                stableDirection = deltaX > 0 ? 'bottom' : 'top';
+                stableDirection = deltaY > 0 ? 'bottom' : 'top';
                 moveOrientation = 'vertical';
             }
 
