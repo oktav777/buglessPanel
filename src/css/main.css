@@ -8,31 +8,39 @@ body.open {
   -moz-overflow-scrolling: touch;
   overflow-scrolling: touch;
 }
-
-.m-panel.animate {
-  transition: all 0.3s;
-}
-
 .m-panel {
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
   -moz-overflow-scrolling: touch;
   overflow-scrolling: touch;
-  position: fixed;
   will-change: transform;
+  position: fixed;
   left: 0;
   top: 0;
   height: 100%;
   width: 100%;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0,0,0,0.54);
 }
-.m-panel[pos='left'] {
+.m-panel.left {
   transform: translateX(-100%);
 }
-.m-panel[pos='right'] {
+.m-panel.right {
   transform: translateX(100%);
 }
-.m-panel.open {
-  transform: translateX(0);
-  transition: transform 0.1s ease-in-out;
+.animate {
+  transition: all 0.2s linear;
+}
+.test-block {
+  height: 300px;
+  background: #ccc;
+  margin-bottom: 20px;
+  padding: 20px 0;
+  font-size: 30px;
+}
+.test-block2 {
+  height: 300px;
+  background: #005bc4;
+  margin-bottom: 20px;
+  padding: 20px 0;
+  font-size: 30px;
 }
