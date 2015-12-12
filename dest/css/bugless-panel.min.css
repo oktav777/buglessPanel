@@ -1,0 +1,29 @@
+.m-panel {
+  display: none;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+  -moz-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+  will-change: transform;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: #9a9a9a;
+}
+.m-panel.left {
+  left: -100%;
+}
+.m-panel.right {
+  left: 100%;
+}
+.m-panel.bottom {
+  top: 100%;
+}
+.m-panel.top {
+  top: -100%;
+}
+.animate {
+  transition: all 0.2s linear;
+}

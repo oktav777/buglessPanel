@@ -1,8 +1,8 @@
-var menu = new Panel('#left-panel', {
+var leftPanel = new Panel('#left-panel', {
     position: Panel.POSITION_LEFT
 });
 
-var search = new Panel('#right-panel', {
+var rigtPanel = new Panel('#right-panel', {
     position: Panel.POSITION_RIGHT
 });
 
@@ -18,16 +18,7 @@ var topPanel = new Panel('#top-panel', {
     position: Panel.POSITION_TOP
 });
 
-BuglessPanel.init({
-    content: '.container',
-    leftPanel: menu,
-    rightPanel: search,
-});
-
-
-
-var btn = document.querySelector('#open-panel');
-btn.addEventListener('click', function(e) {
+document.querySelector('#open-panel').addEventListener('click', function(e) {
     clickPanel.open();
 }, false);
 
@@ -38,3 +29,12 @@ document.querySelector('#open-bottom').addEventListener('click', function(e) {
 document.querySelector('#open-top').addEventListener('click', function(e) {
     topPanel.open();
 }, false);
+
+
+
+BuglessPanels.init({
+    content: '.container',
+    leftPanel: leftPanel,
+    rightPanel: rigtPanel,
+    panelThreshold: 10
+});

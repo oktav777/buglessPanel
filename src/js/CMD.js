@@ -89,7 +89,7 @@ CMD.prototype.initListeners = function () {
     }, false);
 
     self.element.addEventListener('touchcancel', function(e) {
-        self.triggerEvent('movecancel' + stableDirection, eventParams);
+        self.triggerEvent('moveend' + stableDirection, eventParams);
         stableDirection = false;
     }, false);
 }

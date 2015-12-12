@@ -1,0 +1,18 @@
+{
+    "jscompiler": {
+        "outputs": [
+            {
+                "inputs": [
+                    "src/js/cmd.js",
+                    "src/js/bugless-panels.js",
+                    "src/js/panel.js",
+                    "src/js/help.js"
+                ],
+                "output": "dest/js/bugless-panel.min.js",
+                "generateMap": true,
+                "mangle": true,
+                "isolate": false
+            }
+        ]
+    }
+}
