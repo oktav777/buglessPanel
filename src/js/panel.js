@@ -9,8 +9,14 @@ function Panel(selector, params) {
     BuglessPanels.panels.push(self);
     self.element = document.querySelector(selector);
     self.innerElement = self.element.querySelector('.inner');
+    self.transitionEvent = Help.transitionEvent();
     self.x = null;
     self.y = null;
+    self.isOpened = false;
+    self.onShow = params.onShow || null;
+    self.onShown = params.onShown || null;
+    self.onClose = params.onClose || null;
+    self.onClosed = params.onClosed || null;
 
     if(!self.element)
         throw new Error('Panel "' + selector + '" not found');
@@ -50,7 +56,6 @@ function Panel(selector, params) {
                 break;
         }
     }
-
 }
 
 
@@ -65,12 +70,17 @@ Panel.prototype.listenTopSwipe = function() {
 
     self.elementCMD.on('movetop', function(e) {
         if(e.direction !== false && (self.element.scrollTop + self.element.offsetHeight) >= self.innerElement.offsetHeight) {
+            if(!self.onCloseWasCalled) {
+                self.onClose(self);
+                self.onCloseWasCalled = true;
+            }
             var v = Help.calculatePercentageY(e.touches[0].clientY) + Help.calculatePercentageY(sy);
             self.moveY(v < 100 ? v : 100);
         }
     });
 
     self.elementCMD.on('moveendtop', function(e) {
+        self.onCloseWasCalled = false;
         if(self.y < 100 - BuglessPanels.panelThreshold) {
             self.close();
         } else {
@@ -91,16 +101,20 @@ Panel.prototype.listenBottomSwipe = function() {
 
     self.elementCMD.on('movebottom', function(e) {
         if(e.direction !== false && self.element.scrollTop <= 0) {
+            if(!self.onCloseWasCalled) {
+                self.onClose(self);
+                self.onCloseWasCalled = true;
+            }
             var v = Help.calculatePercentageY(e.touches[0].clientY) - Help.calculatePercentageY(sy);
             self.moveY(v > 0 ? v : 0);
         }
     });
 
     self.elementCMD.on('moveendbottom', function(e) {
+        self.onCloseWasCalled = false;
         if(self.y > BuglessPanels.panelThreshold) {
             self.close();
         } else {
-            console.log('open');
             self.open();
         }
     });
@@ -118,12 +132,17 @@ Panel.prototype.listenLeftSwipe = function() {
 
     self.elementCMD.on('moveleft', function(e) {
         if(e.direction !== false) {
+            if(!self.onCloseWasCalled) {
+                self.onClose(self);
+                self.onCloseWasCalled = true;
+            }
             var v = Help.calculatePercentageX(e.touches[0].clientX) + Help.calculatePercentageX(sx);
             self.moveX(v < 100 ? v : 100);
         }
     });
 
     self.elementCMD.on('moveendleft', function(e) {
+        self.onCloseWasCalled = false;
         if(self.x < 100 - BuglessPanels.panelThreshold) {
             self.close();
         } else {
@@ -143,12 +162,17 @@ Panel.prototype.listenRightSwipe = function() {
 
     self.elementCMD.on('moveright', function(e) {
         if(e.direction !== false) {
+            if(!self.onCloseWasCalled) {
+                self.onClose(self);
+                self.onCloseWasCalled = true;
+            }
             var v = Help.calculatePercentageX(e.touches[0].clientX) - Help.calculatePercentageX(sx);
             self.moveX(v > 0 ? v : 0);
         }
     });
 
     self.elementCMD.on('moveendright', function(e) {
+        self.onCloseWasCalled = false;
         if(self.x > BuglessPanels.panelThreshold) {
             self.close();
         } else {
@@ -199,19 +223,25 @@ Panel.prototype.close = function () {
             break;
     }
 
-    var transitionEvent = Help.transitionEvent();
     function hidePanel() {
         self.hide();
-        self.element.removeEventListener(transitionEvent, hidePanel);
+        if(self.onClosed) {
+            self.onClosed(self);
+        }
+        self.element.removeEventListener(self.transitionEvent, hidePanel);
+        self.isOpened = false;
     }
-    if(transitionEvent) {
-        self.element.removeEventListener(transitionEvent, hidePanel);
-        self.element.addEventListener(transitionEvent, hidePanel);
+    if(self.transitionEvent) {
+        self.element.removeEventListener(self.transitionEvent, hidePanel);
+        self.element.addEventListener(self.transitionEvent, hidePanel);
     }
 }
 
 Panel.prototype.open = function () {
     var self = this;
+    if(self.onShow && !self.isOpened) {
+        self.onShow(self);
+    }
     self.show();
     var intervalId = setInterval(function() {
         if(self.element.style.display == 'block') {
@@ -231,6 +261,18 @@ Panel.prototype.open = function () {
                     break;
             }
             clearInterval(intervalId);
+
+            if(self.onShown) {
+                function onShownEvent() {
+                    self.element.removeEventListener(self.transitionEvent, onShownEvent);
+                    self.onShown(self);
+                    self.isOpened = true;
+                }
+                if(self.transitionEvent) {
+                    self.element.removeEventListener(self.transitionEvent, onShownEvent);
+                    self.element.addEventListener(self.transitionEvent, onShownEvent);
+                }
+            }
         }
     }, 50);
 }
