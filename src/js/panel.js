@@ -172,13 +172,13 @@ Panel.prototype.hide = function() {
 Panel.prototype.moveX = function (value) {
     this.x = value;
     value = this.position == Panel.POSITION_LEFT ? (-100 + value) : value;
-    this.element.style.left = value + '%';
+    this.element.style.transform = 'translateX(' + value + '%)';
 }
 
 Panel.prototype.moveY = function (value) {
     this.y = value;
     value = this.position == Panel.POSITION_TOP ? (-100 + value) : value;
-    this.element.style.top = value + '%';
+    this.element.style.transform = 'translateY(' + value + '%)';
 }
 
 Panel.prototype.close = function () {
@@ -213,21 +213,24 @@ Panel.prototype.close = function () {
 Panel.prototype.open = function () {
     var self = this;
     self.show();
-    setTimeout(function() {
-        Help.addClass(self.element, 'animate');
-        switch(self.position) {
-            case Panel.POSITION_LEFT:
-                self.moveX(100);
-                break;
-            case Panel.POSITION_RIGHT:
-                self.moveX(0);
-                break;
-            case Panel.POSITION_TOP:
-                self.moveY(100);
-                break;
-            case Panel.POSITION_BOTTOM:
-                self.moveY(0);
-                break;
+    var intervalId = setInterval(function() {
+        if(self.element.style.display == 'block') {
+            Help.addClass(self.element, 'animate');
+            switch(self.position) {
+                case Panel.POSITION_LEFT:
+                    self.moveX(100);
+                    break;
+                case Panel.POSITION_RIGHT:
+                    self.moveX(0);
+                    break;
+                case Panel.POSITION_TOP:
+                    self.moveY(100);
+                    break;
+                case Panel.POSITION_BOTTOM:
+                    self.moveY(0);
+                    break;
+            }
+            clearInterval(intervalId);
         }
-    }, 0);
+    }, 50);
 }

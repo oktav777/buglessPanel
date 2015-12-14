@@ -1,13 +1,13 @@
 // out:../../dest/css/bugless-panel.min.css
 .m-panel
     &.left
-        left -100%
+        transform translateX(-100%)
     &.right
-        left 100%
+        transform translateX(100%)
     &.bottom
-        top 100%
+        transform translateY(100%)
     &.top
-        top -100%
+        transform translateY(-100%)
     display none
     overflow scroll
     -webkit-overflow-scrolling touch
