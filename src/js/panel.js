@@ -70,7 +70,7 @@ Panel.prototype.listenTopSwipe = function() {
 
     self.elementCMD.on('movetop', function(e) {
         if(e.direction !== false && (self.element.scrollTop + self.element.offsetHeight) >= self.innerElement.offsetHeight) {
-            if(!self.onCloseWasCalled) {
+            if(self.onClose && !self.onCloseWasCalled) {
                 self.onClose(self);
                 self.onCloseWasCalled = true;
             }
@@ -101,7 +101,7 @@ Panel.prototype.listenBottomSwipe = function() {
 
     self.elementCMD.on('movebottom', function(e) {
         if(e.direction !== false && self.element.scrollTop <= 0) {
-            if(!self.onCloseWasCalled) {
+            if(self.onClose && !self.onCloseWasCalled) {
                 self.onClose(self);
                 self.onCloseWasCalled = true;
             }
@@ -132,7 +132,7 @@ Panel.prototype.listenLeftSwipe = function() {
 
     self.elementCMD.on('moveleft', function(e) {
         if(e.direction !== false) {
-            if(!self.onCloseWasCalled) {
+            if(self.onClose && !self.onCloseWasCalled) {
                 self.onClose(self);
                 self.onCloseWasCalled = true;
             }
@@ -162,7 +162,7 @@ Panel.prototype.listenRightSwipe = function() {
 
     self.elementCMD.on('moveright', function(e) {
         if(e.direction !== false) {
-            if(!self.onCloseWasCalled) {
+            if(self.onClose && !self.onCloseWasCalled) {
                 self.onClose(self);
                 self.onCloseWasCalled = true;
             }
@@ -239,7 +239,7 @@ Panel.prototype.close = function () {
 
 Panel.prototype.open = function () {
     var self = this;
-    if(self.onShow && !self.isOpened) {
+    if(self.onShow && !self.isOpened && !self.onShowWasCalled) {
         self.onShow(self);
     }
     self.show();
@@ -262,7 +262,7 @@ Panel.prototype.open = function () {
             }
             clearInterval(intervalId);
 
-            if(self.onShown) {
+            if(self.onShown && !self.isOpened) {
                 function onShownEvent() {
                     self.element.removeEventListener(self.transitionEvent, onShownEvent);
                     self.onShown(self);

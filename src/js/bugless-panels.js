@@ -56,12 +56,12 @@ var BuglessPanels = {
         });
 
         self.contentCMD.on('moveendright', function(e) {
-            self.leftPanel.onShowWasCalled = false;
             if(self.leftPanel.x > self.panelThreshold) {
                 self.leftPanel.open();
             } else {
                 self.leftPanel.close();
             }
+            self.leftPanel.onShowWasCalled = false;
         });
     },
     listenLeftSwipe: function() {
@@ -83,6 +83,7 @@ var BuglessPanels = {
             } else {
                 self.rightPanel.close();
             }
+            self.rightPanel.onShowWasCalled = false;
         });
     },
     panelsAnimateOff: function() {
