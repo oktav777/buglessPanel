@@ -13,16 +13,16 @@
   background: #9a9a9a;
 }
 .m-panel.left {
-  left: -100%;
+  transform: translateX(-100%);
 }
 .m-panel.right {
-  left: 100%;
+  transform: translateX(100%);
 }
 .m-panel.bottom {
-  top: 100%;
+  transform: translateY(100%);
 }
 .m-panel.top {
-  top: -100%;
+  transform: translateY(-100%);
 }
 .animate {
   transition: all 0.2s linear;
