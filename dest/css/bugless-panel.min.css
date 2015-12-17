@@ -11,6 +11,7 @@
   height: 100%;
   width: 100%;
   background: #9a9a9a;
+  z-index: 1000;
 }
 .m-panel.left {
   transform: translateX(-100%);

@@ -262,16 +262,16 @@ Panel.prototype.open = function () {
             }
             clearInterval(intervalId);
 
-            if(self.onShown && !self.isOpened) {
-                function onShownEvent() {
-                    self.element.removeEventListener(self.transitionEvent, onShownEvent);
+            function onShownEvent() {
+                self.element.removeEventListener(self.transitionEvent, onShownEvent);
+                if(self.onShown && !self.isOpened) {
                     self.onShown(self);
-                    self.isOpened = true;
                 }
-                if(self.transitionEvent) {
-                    self.element.removeEventListener(self.transitionEvent, onShownEvent);
-                    self.element.addEventListener(self.transitionEvent, onShownEvent);
-                }
+                self.isOpened = true;
+            }
+            if(self.transitionEvent) {
+                self.element.removeEventListener(self.transitionEvent, onShownEvent);
+                self.element.addEventListener(self.transitionEvent, onShownEvent);
             }
         }
     }, 50);
