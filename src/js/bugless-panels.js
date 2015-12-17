@@ -46,6 +46,10 @@ var BuglessPanels = {
         var self = this;
         self.contentCMD.on('moveright', function (e) {
             if(e.direction !== false) {
+                if(self.leftPanel.onShow && !self.leftPanel.onShowWasCalled) {
+                    self.leftPanel.onShow(self.leftPanel);
+                    self.leftPanel.onShowWasCalled = true;
+                }
                 self.leftPanel.show();
                 self.leftPanel.moveX(Help.calculatePercentageX(e.touches[0].clientX));
             }
@@ -57,12 +61,17 @@ var BuglessPanels = {
             } else {
                 self.leftPanel.close();
             }
+            self.leftPanel.onShowWasCalled = false;
         });
     },
     listenLeftSwipe: function() {
         var self = this;
         self.contentCMD.on('moveleft', function (e) {
             if(e.direction !== false) {
+                if(self.rightPanel.onShow && !self.rightPanel.onShowWasCalled) {
+                    self.rightPanel.onShow(self.rightPanel);
+                    self.rightPanel.onShowWasCalled = true;
+                }
                 self.rightPanel.show();
                 self.rightPanel.moveX(Help.calculatePercentageX(e.touches[0].clientX));
             }
@@ -74,6 +83,7 @@ var BuglessPanels = {
             } else {
                 self.rightPanel.close();
             }
+            self.rightPanel.onShowWasCalled = false;
         });
     },
     panelsAnimateOff: function() {

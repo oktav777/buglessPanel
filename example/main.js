@@ -1,5 +1,17 @@
 var leftPanel = new Panel('#left-panel', {
-    position: Panel.POSITION_LEFT
+    position: Panel.POSITION_LEFT,
+    onShow: function(p) {
+        console.log('show');
+    },
+    onShown: function(p) {
+        console.log('shown');
+    },
+    onClose: function(p) {
+        console.log('close');
+    },
+    onClosed: function(p) {
+        console.log('closed');
+    }
 });
 
 var rigtPanel = new Panel('#right-panel', {

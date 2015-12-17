@@ -3,7 +3,7 @@
         "outputs": [
             {
                 "inputs": [
-                    "src/js/cmd.js",
+                    "src/js/catch-move-direction.js",
                     "src/js/bugless-panels.js",
                     "src/js/panel.js",
                     "src/js/help.js"
