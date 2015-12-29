@@ -3,6 +3,7 @@ var BuglessPanels = {
     panelThreshold: 40, // in %
     panels: [],
     init: function(params) {
+        var self = this;
         this.params = params;
 
         if(!params.content)
@@ -32,6 +33,19 @@ var BuglessPanels = {
             this.initContentCMD();
             this.listenLeftSwipe();
         }
+
+        this.backdrop = document.querySelector('.bugless-backdrop');
+        if(this.backdrop == null) {
+            this.backdrop = document.createElement('div');
+            this.backdrop.setAttribute('class', 'bugless-backdrop');
+            document.body.appendChild(this.backdrop);
+            this.backdrop.addEventListener('click', function(e) {
+                self.closeAll();
+            }, false);
+            this.backdrop.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, false);
+        }
     },
     initContentCMD: function() {
         var self = this;
@@ -51,12 +65,16 @@ var BuglessPanels = {
                     self.leftPanel.onShowWasCalled = true;
                 }
                 self.leftPanel.show();
-                self.leftPanel.moveX(Help.calculatePercentageX(e.touches[0].clientX));
+
+                var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
+                var x = cursorPos * 100 / self.leftPanel.width;
+                self.leftPanel.moveX(x);
             }
         });
 
         self.contentCMD.on('moveendright', function(e) {
-            if(self.leftPanel.x > self.panelThreshold) {
+            var x = self.leftPanel.x * 100 / self.leftPanel.width;
+            if(x > self.panelThreshold) {
                 self.leftPanel.open();
             } else {
                 self.leftPanel.close();
@@ -73,7 +91,10 @@ var BuglessPanels = {
                     self.rightPanel.onShowWasCalled = true;
                 }
                 self.rightPanel.show();
-                self.rightPanel.moveX(Help.calculatePercentageX(e.touches[0].clientX));
+                var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
+
+                var x = cursorPos * 100 / self.rightPanel.width;
+                self.rightPanel.moveX(x - ((100 - self.rightPanel.width) * 100 / self.rightPanel.width));
             }
         });
 
@@ -95,5 +116,11 @@ var BuglessPanels = {
         for(var i in this.panels) {
             this.panels[i].isOpened && this.panels[i].close();
         }
+    },
+    backdropOn: function() {
+        Help.addClass(this.backdrop, 'in');
+    },
+    backdropOff: function() {
+        Help.removeClass(this.backdrop, 'in');
     }
 }

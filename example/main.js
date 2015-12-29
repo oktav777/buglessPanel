@@ -1,52 +1,41 @@
 var leftPanel = new Panel('#left-panel', {
     position: Panel.POSITION_LEFT,
-    onShow: function(p) {
-        console.log('show');
-    },
-    onShown: function(p) {
-        console.log('shown');
-    },
-    onClose: function(p) {
-        console.log('close');
-    },
-    onClosed: function(p) {
-        console.log('closed');
-    }
+    width: 80,
 });
 
-var rigtPanel = new Panel('#right-panel', {
-    position: Panel.POSITION_RIGHT
-});
-
-var clickPanel = new Panel('#click-panel', {
-    position: Panel.POSITION_RIGHT
-});
-
-var bottomPanel = new Panel('#bottom-panel', {
-    position: Panel.POSITION_BOTTOM
+var rightPanel = new Panel('#right-panel', {
+    position: Panel.POSITION_RIGHT,
+    width: 80,
 });
 
 var topPanel = new Panel('#top-panel', {
-    position: Panel.POSITION_TOP
+    position: Panel.POSITION_TOP,
+    width: 80,
+    height: 80,
 });
 
-document.querySelector('#open-panel').addEventListener('click', function(e) {
-    clickPanel.open();
-}, false);
 
-document.querySelector('#open-bottom').addEventListener('click', function(e) {
-    bottomPanel.open();
-}, false);
+var bottomPanel = new Panel('#bottom-panel', {
+    position: Panel.POSITION_BOTTOM,
+    width: 80,
+    height: 30,
+});
 
-document.querySelector('#open-top').addEventListener('click', function(e) {
+
+document.querySelector('#open-top').addEventListener('click', function() {
     topPanel.open();
-}, false);
+});
+
+document.querySelector('#open-bottom').addEventListener('click', function() {
+    bottomPanel.open();
+});
+
 
 
 
 BuglessPanels.init({
     content: '.container',
     leftPanel: leftPanel,
-    rightPanel: rigtPanel,
-    panelThreshold: 10
+    rightPanel: rightPanel,
+    panelThreshold: 30
 });
