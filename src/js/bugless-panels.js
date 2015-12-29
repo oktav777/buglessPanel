@@ -90,5 +90,10 @@ var BuglessPanels = {
         for(var i in this.panels) {
             this.panels[i].animateOff();
         }
+    },
+    closeAll: function() {
+        for(var i in this.panels) {
+            this.panels[i].isOpened && this.panels[i].close();
+        }
     }
 }
