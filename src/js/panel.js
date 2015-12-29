@@ -5,18 +5,12 @@ Panel.POSITION_BOTTOM = 6;
 
 function Panel(selector, params) {
     var self = this;
-
-    BuglessPanels.panels.push(self);
     self.element = document.querySelector(selector);
     self.innerElement = self.element.querySelector('.inner');
     self.transitionEvent = Help.transitionEvent();
     self.x = null;
     self.y = null;
     self.isOpened = false;
-    self.onShow = params.onShow || null;
-    self.onShown = params.onShown || null;
-    self.onClose = params.onClose || null;
-    self.onClosed = params.onClosed || null;
 
     if(!self.element)
         throw new Error('Panel "' + selector + '" not found');
@@ -24,7 +18,18 @@ function Panel(selector, params) {
     if(!params.position)
         throw new Error('Please specify the panel position');
 
+    // Params
+    self.onShow = params.onShow || null;
+    self.onShown = params.onShown || null;
+    self.onClose = params.onClose || null;
+    self.onClosed = params.onClosed || null;
     self.position = params.position;
+    self.width = params.width || 100; // in %
+    self.height = params.height || 100; // in %
+
+    self.element.style.width = self.width + '%';
+    self.element.style.height = self.height + '%';
+    BuglessPanels.panels.push(self);
 
     if(params.closeBySwipe !== false) {
         self.elementCMD = new CMD(self.element, {
@@ -127,7 +132,7 @@ Panel.prototype.listenLeftSwipe = function() {
 
     self.elementCMD.on('touchstart', function(e) {
         self.animateOff();
-        sx = screen.width - e.touches[0].clientX;
+        sx = self.width - Help.calculatePercentageX(e.touches[0].clientX);
     });
 
     self.elementCMD.on('moveleft', function(e) {
@@ -136,8 +141,9 @@ Panel.prototype.listenLeftSwipe = function() {
                 self.onClose(self);
                 self.onCloseWasCalled = true;
             }
-            var v = Help.calculatePercentageX(e.touches[0].clientX) + Help.calculatePercentageX(sx);
-            self.moveX(v < 100 ? v : 100);
+            var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
+            var x = cursorPos * 100 / self.width;
+            self.moveX(x + sx);
         }
     });
 
@@ -157,7 +163,7 @@ Panel.prototype.listenRightSwipe = function() {
 
     self.elementCMD.on('touchstart', function(e) {
         self.animateOff();
-        sx = e.touches[0].clientX;
+        sx = self.width - Help.calculatePercentageX(screen.width - e.touches[0].clientX);
     });
 
     self.elementCMD.on('moveright', function(e) {
@@ -166,8 +172,9 @@ Panel.prototype.listenRightSwipe = function() {
                 self.onClose(self);
                 self.onCloseWasCalled = true;
             }
-            var v = Help.calculatePercentageX(e.touches[0].clientX) - Help.calculatePercentageX(sx);
-            self.moveX(v > 0 ? v : 0);
+            var x = Help.calculatePercentageX(e.touches[0].clientX) * 100 / self.width;
+            x = x - ((100 - self.width) * 100 / self.width)
+            self.moveX(x - sx);
         }
     });
 
@@ -185,8 +192,13 @@ Panel.prototype.animateOff = function() {
     Help.removeClass(this.element, 'animate');
 }
 
+Panel.prototype.animateOn = function() {
+    Help.addClass(this.element, 'animate');
+}
+
 Panel.prototype.show = function() {
     this.element.style.display = 'block';
+    BuglessPanels.backdropOn();
 }
 
 Panel.prototype.hide = function() {
@@ -194,6 +206,8 @@ Panel.prototype.hide = function() {
 }
 
 Panel.prototype.moveX = function (value) {
+    if(this.position == Panel.POSITION_LEFT && value > 100) return false;
+    if(this.position == Panel.POSITION_RIGHT && value < 0) return false;
     this.x = value;
     value = this.position == Panel.POSITION_LEFT ? (-100 + value) : value;
     this.element.style.transform = 'translateX(' + value + '%)';
@@ -207,7 +221,8 @@ Panel.prototype.moveY = function (value) {
 
 Panel.prototype.close = function () {
     var self = this;
-    Help.addClass(this.element, 'animate');
+    self.animateOn();
+    BuglessPanels.backdropOff();
     switch(this.position) {
         case Panel.POSITION_LEFT:
             this.moveX(0);
@@ -245,7 +260,7 @@ Panel.prototype.open = function () {
     self.show();
     var intervalId = setInterval(function() {
         if(self.element.style.display == 'block') {
-            Help.addClass(self.element, 'animate');
+            self.animateOn();
             switch(self.position) {
                 case Panel.POSITION_LEFT:
                     self.moveX(100);
