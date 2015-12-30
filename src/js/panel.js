@@ -15,6 +15,9 @@ function Panel(selector, params) {
     if(!self.element)
         throw new Error('Panel "' + selector + '" not found');
 
+    if(!self.innerElement)
+        throw new Error('Panel inner not found');
+
     if(!params.position)
         throw new Error('Please specify the panel position');
 
@@ -24,11 +27,18 @@ function Panel(selector, params) {
     self.onClose = params.onClose || null;
     self.onClosed = params.onClosed || null;
     self.position = params.position;
-    self.width = params.width || 100; // in %
+    self.width = self.w = params.width || 100; // in %
     self.height = params.height || 100; // in %
+    self.maxWidth = params.maxWidth || null; // in px
 
-    self.element.style.width = self.width + '%';
-    self.element.style.height = self.height + '%';
+    self.applyPanelSizes();
+
+    window.addEventListener('resize', function(e) {
+        setTimeout(function() {
+            self.applyPanelSizes();
+        }, 100);
+    }, false);
+
     BuglessPanels.panels.push(self);
 
     if(params.closeBySwipe !== false) {
@@ -63,6 +73,19 @@ function Panel(selector, params) {
     }
 }
 
+Panel.prototype.applyPanelSizes = function() {
+    var self = this;
+    if(self.maxWidth !== null) {
+        if((screen.width * self.width / 100) > self.maxWidth) {
+            self.width = self.maxWidth * 100 / screen.width;
+        } else {
+            self.width = self.w;
+        }
+    }
+    self.element.style.width = self.width + '%';
+    self.element.style.height = self.height + '%';
+    console.log('obj');
+}
 
 Panel.prototype.listenTopSwipe = function() {
     var self = this,
@@ -70,7 +93,7 @@ Panel.prototype.listenTopSwipe = function() {
 
     self.elementCMD.on('touchstart', function(e) {
         self.animateOff();
-        sy = screen.height - e.touches[0].clientY;
+        sy = self.height - Help.calculatePercentageY(e.touches[0].clientY);
     });
 
     self.elementCMD.on('movetop', function(e) {
@@ -79,8 +102,9 @@ Panel.prototype.listenTopSwipe = function() {
                 self.onClose(self);
                 self.onCloseWasCalled = true;
             }
-            var v = Help.calculatePercentageY(e.touches[0].clientY) + Help.calculatePercentageY(sy);
-            self.moveY(v < 100 ? v : 100);
+            var cursorPos = Help.calculatePercentageY(e.touches[0].clientY); //%
+            var x = cursorPos * 100 / self.height;
+            self.moveY(x + sy);
         }
     });
 
@@ -101,7 +125,7 @@ Panel.prototype.listenBottomSwipe = function() {
 
     self.elementCMD.on('touchstart', function(e) {
         self.animateOff();
-        sy = e.touches[0].clientY;
+        sy = self.height - Help.calculatePercentageY(screen.height - e.touches[0].clientY);
     });
 
     self.elementCMD.on('movebottom', function(e) {
@@ -110,8 +134,10 @@ Panel.prototype.listenBottomSwipe = function() {
                 self.onClose(self);
                 self.onCloseWasCalled = true;
             }
-            var v = Help.calculatePercentageY(e.touches[0].clientY) - Help.calculatePercentageY(sy);
-            self.moveY(v > 0 ? v : 0);
+
+            var t = Help.calculatePercentageY(e.touches[0].clientY) * 100 / self.height;
+            t = t - ((100 - self.height) * 100 / self.height)
+            self.moveY(t - sy);
         }
     });
 
@@ -214,6 +240,8 @@ Panel.prototype.moveX = function (value) {
 }
 
 Panel.prototype.moveY = function (value) {
+    if(this.position == Panel.POSITION_TOP && value > 100) return false;
+    if(this.position == Panel.POSITION_BOTTOM && value < 0) return false;
     this.y = value;
     value = this.position == Panel.POSITION_TOP ? (-100 + value) : value;
     this.element.style.transform = 'translateY(' + value + '%)';

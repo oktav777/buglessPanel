@@ -57,7 +57,13 @@ var BuglessPanels = {
         }
     },
     listenRightSwipe: function() {
-        var self = this;
+        var self = this,
+            sx = null;
+
+        self.contentCMD.on('touchstart', function (e) {
+            sx = Help.calculatePercentageX(e.touches[0].clientX);
+        });
+
         self.contentCMD.on('moveright', function (e) {
             if(e.direction !== false) {
                 if(self.leftPanel.onShow && !self.leftPanel.onShowWasCalled) {
@@ -67,6 +73,11 @@ var BuglessPanels = {
                 self.leftPanel.show();
 
                 var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
+                if(self.leftPanel.maxWidth !== null) {
+                    if(cursorPos > self.leftPanel.width) {
+                        cursorPos = cursorPos - sx;
+                    }
+                }
                 var x = cursorPos * 100 / self.leftPanel.width;
                 self.leftPanel.moveX(x);
             }
@@ -83,7 +94,13 @@ var BuglessPanels = {
         });
     },
     listenLeftSwipe: function() {
-        var self = this;
+        var self = this,
+            sx = null;
+
+        self.contentCMD.on('touchstart', function (e) {
+            sx = Help.calculatePercentageX(screen.width - e.touches[0].clientX);
+        });
+
         self.contentCMD.on('moveleft', function (e) {
             if(e.direction !== false) {
                 if(self.rightPanel.onShow && !self.rightPanel.onShowWasCalled) {
@@ -91,7 +108,13 @@ var BuglessPanels = {
                     self.rightPanel.onShowWasCalled = true;
                 }
                 self.rightPanel.show();
+
                 var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
+                if(self.rightPanel.maxWidth !== null) {
+                    if((100 - cursorPos) > self.rightPanel.width) {
+                        cursorPos = cursorPos + sx;
+                    }
+                }
 
                 var x = cursorPos * 100 / self.rightPanel.width;
                 self.rightPanel.moveX(x - ((100 - self.rightPanel.width) * 100 / self.rightPanel.width));
