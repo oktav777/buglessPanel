@@ -197,8 +197,8 @@ Panel.prototype.animateOn = function() {
 }
 
 Panel.prototype.show = function() {
-    this.element.style.display = 'block';
     BuglessPanels.backdropOn();
+    this.element.style.display = 'block';
 }
 
 Panel.prototype.hide = function() {
@@ -222,7 +222,6 @@ Panel.prototype.moveY = function (value) {
 Panel.prototype.close = function () {
     var self = this;
     self.animateOn();
-    BuglessPanels.backdropOff();
     switch(this.position) {
         case Panel.POSITION_LEFT:
             this.moveX(0);
@@ -239,6 +238,7 @@ Panel.prototype.close = function () {
     }
 
     function hidePanel() {
+        BuglessPanels.backdropOff();
         self.hide();
         if(self.onClosed) {
             self.onClosed(self);
@@ -254,10 +254,10 @@ Panel.prototype.close = function () {
 
 Panel.prototype.open = function () {
     var self = this;
+    self.show();
     if(self.onShow && !self.isOpened && !self.onShowWasCalled) {
         self.onShow(self);
     }
-    self.show();
     var intervalId = setInterval(function() {
         if(self.element.style.display == 'block') {
             self.animateOn();
