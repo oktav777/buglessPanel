@@ -84,7 +84,6 @@ Panel.prototype.applyPanelSizes = function() {
     }
     self.element.style.width = self.width + '%';
     self.element.style.height = self.height + '%';
-    console.log('obj');
 }
 
 Panel.prototype.listenTopSwipe = function() {

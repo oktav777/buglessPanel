@@ -1,4 +1,10 @@
-window.leftPanel = new Panel('#left-panel', {
+var leftPanel = new Panel('#left-panel', {
+    position: Panel.POSITION_LEFT,
+    width: 80,
+    maxWidth: 350
+});
+
+window.leftPanel2 = new Panel('#left-panel2', {
     position: Panel.POSITION_LEFT,
     width: 80,
     maxWidth: 350
@@ -35,8 +41,6 @@ document.querySelector('#open-top').addEventListener('click', function() {
 document.querySelector('#open-bottom').addEventListener('click', function() {
     bottomPanel.open();
 });
-
-
 
 
 BuglessPanels.init({
