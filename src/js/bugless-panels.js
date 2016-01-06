@@ -64,7 +64,7 @@ var BuglessPanels = {
 
         self.contentCMD.on('touchstart', function (e) {
             sx = Help.calculatePercentageX(e.touches[0].clientX);
-            touchedOnContent = Help.closest(e.target, '.bugless-panel') == null;
+            touchedOnContent = Help.closest(e.target, '.bugless-panel') == null && e.target != document.querySelector('.bugless-panel');
         });
 
         self.contentCMD.on('moveright', function (e) {
@@ -104,7 +104,7 @@ var BuglessPanels = {
 
         self.contentCMD.on('touchstart', function (e) {
             sx = Help.calculatePercentageX(screen.width - e.touches[0].clientX);
-            touchedOnContent = Help.closest(e.target, '.bugless-panel') == null;
+            touchedOnContent = Help.closest(e.target, '.bugless-panel') == null && e.target != document.querySelector('.bugless-panel');
         });
 
         self.contentCMD.on('moveleft', function (e) {
