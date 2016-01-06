@@ -21,6 +21,12 @@ function Panel(selector, params) {
     if(!params.position)
         throw new Error('Please specify the panel position');
 
+    // move any panels inside of content to outside of it
+    if(Help.closest(self.element, BuglessPanels.content) != null) {
+        document.body.appendChild(self.element);
+    }
+
+
     // Params
     self.onShow = params.onShow || null;
     self.onShown = params.onShown || null;
@@ -33,6 +39,7 @@ function Panel(selector, params) {
 
     self.applyPanelSizes();
 
+    //orientationchange
     window.addEventListener('resize', function(e) {
         setTimeout(function() {
             self.applyPanelSizes();
