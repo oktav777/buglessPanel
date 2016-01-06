@@ -9,8 +9,9 @@ var BuglessPanels = {
         if(!params.content)
             throw new Error('"content" parameter was not passed');
 
-        this.content = document.querySelector(params.content);
-        if(!this.content)
+        this.content = params.content;
+        this.contentElement = document.querySelector(params.content);
+        if(!this.contentElement)
             throw new Error('Content element not found');
 
         this.moveThreshold = this.params.moveThreshold || 20;
@@ -50,16 +51,24 @@ var BuglessPanels = {
     initContentCMD: function() {
         var self = this;
         if(!this.contentCMD) {
-            this.contentCMD = new CMD(this.content, {threshold: self.moveThreshold});
+            this.contentCMD = new CMD(this.contentElement, {threshold: self.moveThreshold});
             this.contentCMD.on('touchstart', function(e) {
                 self.panelsAnimateOff();
             });
         }
     },
     listenRightSwipe: function() {
-        var self = this;
+        var self = this,
+            sx = null,
+            touchedOnContent = false;
+
+        self.contentCMD.on('touchstart', function (e) {
+            sx = Help.calculatePercentageX(e.touches[0].clientX);
+            touchedOnContent = Help.closest(e.target, '.bugless-panel') == null;
+        });
+
         self.contentCMD.on('moveright', function (e) {
-            if(e.direction !== false) {
+            if(e.direction !== false && touchedOnContent) {
                 if(self.leftPanel.onShow && !self.leftPanel.onShowWasCalled) {
                     self.leftPanel.onShow(self.leftPanel);
                     self.leftPanel.onShowWasCalled = true;
@@ -67,6 +76,11 @@ var BuglessPanels = {
                 self.leftPanel.show();
 
                 var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
+                if(self.leftPanel.maxWidth !== null) {
+                    if(cursorPos > self.leftPanel.width) {
+                        cursorPos = cursorPos - sx;
+                    }
+                }
                 var x = cursorPos * 100 / self.leftPanel.width;
                 self.leftPanel.moveX(x);
             }
@@ -80,18 +94,33 @@ var BuglessPanels = {
                 self.leftPanel.close();
             }
             self.leftPanel.onShowWasCalled = false;
+            touchedOnContent = false;
         });
     },
     listenLeftSwipe: function() {
-        var self = this;
+        var self = this,
+            sx = null,
+            touchedOnContent = false;
+
+        self.contentCMD.on('touchstart', function (e) {
+            sx = Help.calculatePercentageX(screen.width - e.touches[0].clientX);
+            touchedOnContent = Help.closest(e.target, '.bugless-panel') == null;
+        });
+
         self.contentCMD.on('moveleft', function (e) {
-            if(e.direction !== false) {
+            if(e.direction !== false && touchedOnContent) {
                 if(self.rightPanel.onShow && !self.rightPanel.onShowWasCalled) {
                     self.rightPanel.onShow(self.rightPanel);
                     self.rightPanel.onShowWasCalled = true;
                 }
                 self.rightPanel.show();
+
                 var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
+                if(self.rightPanel.maxWidth !== null) {
+                    if((100 - cursorPos) > self.rightPanel.width) {
+                        cursorPos = cursorPos + sx;
+                    }
+                }
 
                 var x = cursorPos * 100 / self.rightPanel.width;
                 self.rightPanel.moveX(x - ((100 - self.rightPanel.width) * 100 / self.rightPanel.width));
@@ -105,6 +134,7 @@ var BuglessPanels = {
                 self.rightPanel.close();
             }
             self.rightPanel.onShowWasCalled = false;
+            touchedOnContent = false;
         });
     },
     panelsAnimateOff: function() {
