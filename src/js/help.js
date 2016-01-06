@@ -1,9 +1,9 @@
 var Help = {
     calculatePercentageX: function(value) {
-        return value * 100 / screen.width;
+        return value * 100 / window.innerWidth;
     },
     calculatePercentageY: function(value) {
-        return value * 100 / screen.height;
+        return value * 100 / window.innerHeight;
     },
     hasClass: function(el, className) {
         if (el.classList)

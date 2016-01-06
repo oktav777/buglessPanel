@@ -33,6 +33,7 @@ function Panel(selector, params) {
 
     self.applyPanelSizes();
 
+    //orientationchange
     window.addEventListener('resize', function(e) {
         setTimeout(function() {
             self.applyPanelSizes();

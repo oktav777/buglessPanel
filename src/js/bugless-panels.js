@@ -76,10 +76,8 @@ var BuglessPanels = {
                 self.leftPanel.show();
 
                 var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
-                if(self.leftPanel.maxWidth !== null) {
-                    if(cursorPos > self.leftPanel.width) {
-                        cursorPos = cursorPos - sx;
-                    }
+                if(self.leftPanel.maxWidth !== null && sx > self.leftPanel.width) {
+                    cursorPos = cursorPos - sx;
                 }
                 var x = cursorPos * 100 / self.leftPanel.width;
                 self.leftPanel.moveX(x);
@@ -116,10 +114,8 @@ var BuglessPanels = {
                 self.rightPanel.show();
 
                 var cursorPos = Help.calculatePercentageX(e.touches[0].clientX); //%
-                if(self.rightPanel.maxWidth !== null) {
-                    if((100 - cursorPos) > self.rightPanel.width) {
-                        cursorPos = cursorPos + sx;
-                    }
+                if(self.rightPanel.maxWidth !== null && sx > self.rightPanel.width) {
+                    cursorPos = cursorPos + sx;
                 }
 
                 var x = cursorPos * 100 / self.rightPanel.width;
