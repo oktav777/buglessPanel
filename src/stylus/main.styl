@@ -1,4 +1,8 @@
 // out:../../dest/css/bugless-panel.min.css
+
+//transition duration
+trs-dur = .2s
+
 body
     margin 0
 
@@ -39,7 +43,8 @@ body
     background #000
     opacity 0
     pointer-events none
-    transition opacity .5s linear
+    will-change opacity
+    transition opacity trs-dur linear
     position fixed
     top 0
     left 0
@@ -51,4 +56,4 @@ body
         pointer-events all
 
 .animate
-    transition transform .2s linear
+    transition transform trs-dur linear

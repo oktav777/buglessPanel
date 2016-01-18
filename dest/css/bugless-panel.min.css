@@ -42,7 +42,8 @@ body {
   background: #000;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.5s linear;
+  will-change: opacity;
+  transition: opacity 0.2s linear;
   position: fixed;
   top: 0;
   left: 0;
